@@ -1,5 +1,5 @@
 """
-WSGI config for advanced_admin project.
+WSGI config for admin_plugin_with_custom_forms project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'advanced_admin.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'admin_plugin_with_custom_forms.settings')
 
 application = get_wsgi_application()

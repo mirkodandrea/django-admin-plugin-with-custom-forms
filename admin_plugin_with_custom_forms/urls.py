@@ -1,4 +1,4 @@
-"""advanced_admin URL Configuration
+"""admin_plugin_with_custom_forms URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.2/topics/http/urls/

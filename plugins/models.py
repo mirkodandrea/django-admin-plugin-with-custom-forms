@@ -6,10 +6,7 @@ from plugins.plugins import flatten_data
 from plugins.plugins import PLUGINS
 
 class PluginModel(models.Model):
-    PLUGIN_CHOICES = [
-        ('SimplePlugin', 'Simple Plugin'),
-        ('NestedWithValidationPlugin', 'Nested With Validation Plugin'),
-    ]
+    PLUGIN_CHOICES = [(key, key) for key in PLUGINS.keys()]
 
     plugin = models.CharField(max_length=50, choices=PLUGIN_CHOICES)
     options = models.JSONField(blank=True, null=True)
