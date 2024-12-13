@@ -1,60 +1,68 @@
 from django import forms
+from abc import abstractmethod
+from django.core.exceptions import ValidationError
+from django.utils.html import format_html, format_html_join
+from typing import Dict
+
+def flatten_data(data, parent_key='', sep='__'):
+    """
+    Flatten nested dictionaries into a single level using the given separator.
+    """
+    items = []
+    for k, v in data.items():
+        new_key = f"{parent_key}{sep}{k}" if parent_key else k
+        if isinstance(v, dict):
+            items.extend(flatten_data(v, new_key, sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
+
+
+class BasePluginForm(forms.Form):
+    @abstractmethod
+    def plugin_clean(self, data) -> (Dict[str, str]|None) :
+        pass
 
 class BasePlugin:
-    name = "Base Plugin"
-
     @staticmethod
-    def get_form(data=None):
-        class PluginForm(forms.Form):
-            # Default base form
-            example_field = forms.CharField(label="Example", max_length=100, initial=data.get('example_field') if data else '')
-
-        return PluginForm
-
-
-class PluginA(BasePlugin):
-    name = "Plugin A"
-
-    @staticmethod
-    def get_form(data=None):
-        class PluginAForm(forms.Form):
-            field_a = forms.CharField(label="Field A", max_length=100, initial=data.get('field_a') if data else '')
-        return PluginAForm
-
-
-class PluginB(BasePlugin):
-    name = "Plugin B"
-
-    @staticmethod
-    def get_form(data=None):
-        class PluginBForm(forms.Form):
-            field_b = forms.IntegerField(label="Field B", initial=data.get('field_b') if data else 0)
-        return PluginBForm
+    def get_form() -> BasePluginForm:
+        raise NotImplementedError("Subclasses must implement this method.")
     
 
-class PluginC:
-    name = "Plugin C"
-
+class SimplePlugin(BasePlugin):
     @staticmethod
-    def get_form(data=None):
-        class PluginCForm(forms.Form):
-            # Top-level fields
-            title = forms.CharField(label="Title", max_length=100, initial=data.get('title') if data else '')
+    def get_form():
+        class SimplePluginForm(BasePluginForm):
+            my_field = forms.IntegerField(label="My Field")
+        return SimplePluginForm
+    
 
-            # Nested fields for an address block
-            address__line1 = forms.CharField(label="Address Line 1", max_length=100, initial=data.get('address', {}).get('line1') if data else '')
-            address__line2 = forms.CharField(label="Address Line 2", max_length=100, required=False, initial=data.get('address', {}).get('line2') if data else '')
-            city = forms.CharField(label="City", max_length=50, initial=data.get('address', {}).get('city') if data else '')
-            state = forms.CharField(label="State", max_length=50, initial=data.get('address', {}).get('state') if data else '')
-            zip_code = forms.CharField(label="Zip Code", max_length=10, initial=data.get('address', {}).get('zip_code') if data else '')
-            triple__nested__field1 = forms.CharField(label="Triple Nested Field", initial=data.get('triple', {}).get('nested', {}).get('field1') if data else '')
-            triple__nested__field2 = forms.CharField(label="Triple Nested Field", initial=data.get('triple', {}).get('nested', {}).get('field2') if data else '')
+class NestedWithValidationPlugin:
+    @staticmethod
+    def get_form():
+        class NestedPluginForm(BasePluginForm):
+            title = forms.CharField(label="Title", max_length=100)
+            address__line1 = forms.CharField(label="Address Line 1", max_length=100)
+            address__line2 = forms.CharField(label="Address Line 2", max_length=100)
+            more__nested__data1 = forms.CharField(label="More Nested Data", max_length=100, initial="Default Value", required=False)
+            more__nested__data2 = forms.CharField(label="More Nested Data 2", max_length=100, initial="Default Value", required=False)
+            city = forms.CharField(label="City", max_length=50)
+            state = forms.CharField(label="State", max_length=50)
 
-        return PluginCForm
+            def plugin_clean(self, data) -> Dict[str, str]|None:
+                address__line1 = data.get('address__line1', None)
+                address__line2 = data.get('address__line2', None)
+                
+                
+                if address__line1 and address__line2 and address__line1 == address__line2:
+                    return {
+                        'address__line1': 'Address Line 1 and Address Line 2 cannot be the same.'
+                    }
+
+        return NestedPluginForm
 
 
 PLUGINS = {
-    'PluginA': PluginA,
-    'PluginB': PluginB,
-    'PluginC': PluginC,
+    'SimplePlugin': SimplePlugin,
+    'NestedWithValidationPlugin': NestedWithValidationPlugin,
 }
