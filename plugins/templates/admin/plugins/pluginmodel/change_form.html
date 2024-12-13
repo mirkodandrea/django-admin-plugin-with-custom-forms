@@ -1,0 +1,18 @@
+{% extends "admin/change_form.html" %}
+{% load static %} 
+
+{% block after_field_sets %}
+  <!-- Container for the dynamic plugin form -->
+  <div id="dynamic-plugin-form-container">
+    <h3>Plugin Options</h3>
+    <div id="dynamic-form-content">
+      <!-- Dynamic form will be loaded here -->
+    </div>
+  </div>
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <!-- Include the JavaScript file for the plugin form -->
+  <script src="{% static 'plugins/js/plugin_form.js' %}"></script>
+{% endblock %}
