@@ -1,4 +1,4 @@
-# Advanced Admin Project
+# Django Admin with plugins and custom forms
 
 ## Description
 This project is a sample Django-based application with a plugin system for dynamic forms. It includes an admin interface to manage plugins and their configurations.
