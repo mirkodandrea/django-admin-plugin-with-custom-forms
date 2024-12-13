@@ -39,13 +39,17 @@ class NestedWithValidationPlugin:
     @staticmethod
     def get_form():
         class NestedPluginForm(BasePluginForm):
-            title = forms.CharField(label="Title", max_length=100)
+            title = forms.CharField(label="Title", initial="Address", max_length=100)
+            
             address__line1 = forms.CharField(label="Address Line 1", max_length=100)
             address__line2 = forms.CharField(label="Address Line 2", max_length=100, required=False)
-            more__nested__data1 = forms.CharField(label="More Nested Data", max_length=100, initial="Default Value", required=False)
-            more__nested__data2 = forms.CharField(label="More Nested Data 2", max_length=100, initial="Default Value")
+            
             city = forms.CharField(label="City", max_length=50)
-            state = forms.CharField(label="State", max_length=50)
+            state = forms.ChoiceField(label="State", choices=[('NY', 'New York'), ('CA', 'California')])
+            distance = forms.DecimalField(label="Distance")
+
+            more__nested__data_1 = forms.CharField(label="More Nested Data 1", max_length=100, required=False)
+            more__nested__data_2 = forms.CharField(label="More Nested Data 2", max_length=100, required=False)
 
             def plugin_clean(self, data) -> Dict[str, str]|None:
                 address__line1 = data.get('address__line1', None)
